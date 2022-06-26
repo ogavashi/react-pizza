@@ -7,15 +7,17 @@ import axios from "axios";
 import { useContext } from "react";
 import { SearchContext } from "../App";
 import { Pagination } from "../components/Pagination";
+import { useSelector, useDispatch } from "react-redux";
+import { setIsAsc, setSortBy, setActiveCategory } from "../redux/slices/filterSlice";
 
 const Home = () => {
   const itemsPerPage = 8;
 
+  const { isAsc, activeCategory, sortBy } = useSelector((state) => state.filter);
+  const dispatch = useDispatch();
+
   const [pizzas, setPizzas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [sortBy, setSortBy] = useState({ name: "popularity", sortType: "rating" });
-  const [activeCategory, setActiveCategory] = useState(0);
-  const [isAsc, setIsAsc] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
 
@@ -23,11 +25,6 @@ const Home = () => {
 
   const pizzaBlocks = pizzas.map((pizza) => <PizzaBlock {...pizza} key={pizza.id} />);
   const skeletonBlocks = [...Array(8)].map((_, index) => <Skeleton key={index} />);
-
-  const onChangePage = (page) => {
-    window.scrollTo(0, 0);
-    setCurrentPage(page);
-  };
 
   useEffect(() => {
     const sortOrder = isAsc ? "asc" : "desc";
@@ -52,15 +49,38 @@ const Home = () => {
   }, [searchValue, isAsc, sortBy, activeCategory, currentPage]);
 
   useEffect(() => {
-    setActiveCategory(0);
-  }, [searchValue]);
+    dispatch(setActiveCategory(0));
+    setCurrentPage(1);
+  }, [searchValue, dispatch]);
   //fix later
+
+  const onChangePage = (page) => {
+    window.scrollTo(0, 0);
+    setCurrentPage(page);
+  };
+
+  const onChangeCategory = (index) => {
+    dispatch(setActiveCategory(index));
+  };
+
+  const onChangeSorBy = (obj) => {
+    dispatch(setSortBy(obj));
+  };
+
+  const onChangeSortOrder = () => {
+    dispatch(setIsAsc(!isAsc));
+  };
 
   return (
     <div className="container">
       <div className="content__top">
-        <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-        <Sort isSelected={sortBy} setIsSelected={setSortBy} isAsc={isAsc} setIsAsc={setIsAsc} />
+        <Categories activeCategory={activeCategory} setActiveCategory={onChangeCategory} />
+        <Sort
+          isSelected={sortBy}
+          setIsSelected={onChangeSorBy}
+          isAsc={isAsc}
+          setIsAsc={onChangeSortOrder}
+        />
       </div>
       <h2 className="content__title">All Pizzas</h2>
       <div className="content__items">{isLoading ? skeletonBlocks : pizzaBlocks}</div>
