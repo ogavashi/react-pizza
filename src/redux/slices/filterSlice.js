@@ -7,6 +7,8 @@ const initialState = {
     sortType: "rating",
   },
   isAsc: true,
+  currentPage: 1,
+  pageCount: 1,
 };
 
 export const filterSlice = createSlice({
@@ -22,9 +24,16 @@ export const filterSlice = createSlice({
     setIsAsc(state, { payload }) {
       state.isAsc = payload;
     },
+    setCurrentPage(state, { payload }) {
+      state.currentPage = payload;
+    },
+    setPageCount(state, { payload }) {
+      state.pageCount = payload;
+    },
   },
 });
 
-export const { setActiveCategory, setSortBy, setIsAsc } = filterSlice.actions;
+export const { setActiveCategory, setSortBy, setIsAsc, setCurrentPage, setPageCount } =
+  filterSlice.actions;
 
 export default filterSlice.reducer;

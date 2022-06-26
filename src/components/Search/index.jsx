@@ -1,17 +1,30 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { SearchContext } from "../../App";
+import debounce from "lodash.debounce";
 
 import styles from "./Search.module.scss";
+import { useCallback } from "react";
 
 const Search = () => {
-  const { searchValue, setSearchValue } = useContext(SearchContext);
+  const { setSearchValue } = useContext(SearchContext);
+  const [localSearchValue, setLocalSearchValue] = useState("");
+
+  const inputRef = useRef();
+
+  const updateSearchValue = useCallback(
+    debounce((value) => setSearchValue(value), 500),
+    []
+  );
 
   const onChangeInput = (event) => {
-    setSearchValue(event.target.value);
+    setLocalSearchValue(event.target.value);
+    updateSearchValue(event.target.value);
   };
 
   const onClearInput = () => {
     setSearchValue("");
+    setLocalSearchValue("");
+    inputRef.current.focus();
   };
 
   return (
@@ -51,12 +64,13 @@ const Search = () => {
         />
       </svg>
       <input
-        value={searchValue}
+        ref={inputRef}
+        value={localSearchValue}
         onChange={onChangeInput}
         className={styles.input}
         placeholder="Search pizza..."
       />
-      {searchValue && (
+      {localSearchValue && (
         <svg
           onClick={onClearInput}
           className={styles.clearIcon}

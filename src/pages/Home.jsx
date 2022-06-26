@@ -8,18 +8,24 @@ import { useContext } from "react";
 import { SearchContext } from "../App";
 import { Pagination } from "../components/Pagination";
 import { useSelector, useDispatch } from "react-redux";
-import { setIsAsc, setSortBy, setActiveCategory } from "../redux/slices/filterSlice";
+import {
+  setIsAsc,
+  setSortBy,
+  setActiveCategory,
+  setCurrentPage,
+  setPageCount,
+} from "../redux/slices/filterSlice";
 
 const Home = () => {
   const itemsPerPage = 8;
 
-  const { isAsc, activeCategory, sortBy } = useSelector((state) => state.filter);
+  const { isAsc, activeCategory, sortBy, currentPage, pageCount } = useSelector(
+    (state) => state.filter
+  );
   const dispatch = useDispatch();
 
   const [pizzas, setPizzas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageCount, setPageCount] = useState(1);
 
   const { searchValue } = useContext(SearchContext);
 
@@ -40,30 +46,31 @@ const Home = () => {
           `https://62b18186c7e53744afbaa222.mockapi.io/pizzas?page=${currentPage}&limit=${itemsPerPage}&${category}${sortType}${order}${search}`
         );
         setPizzas(response.data.items);
-        setPageCount(Math.ceil(response.data.count / itemsPerPage));
+        dispatch(setPageCount(Math.ceil(response.data.count / itemsPerPage)));
         setIsLoading(false);
       } catch (error) {
         alert("Couldn't get pizzas :(");
       }
     })();
-  }, [searchValue, isAsc, sortBy, activeCategory, currentPage]);
+  }, [searchValue, isAsc, sortBy, activeCategory, currentPage, dispatch]);
 
   useEffect(() => {
     dispatch(setActiveCategory(0));
-    setCurrentPage(1);
+    dispatch(setCurrentPage(1));
   }, [searchValue, dispatch]);
   //fix later
 
   const onChangePage = (page) => {
     window.scrollTo(0, 0);
-    setCurrentPage(page);
+    dispatch(setCurrentPage(page));
   };
 
   const onChangeCategory = (index) => {
     dispatch(setActiveCategory(index));
+    dispatch(setCurrentPage(1));
   };
 
-  const onChangeSorBy = (obj) => {
+  const onChangeSortBy = (obj) => {
     dispatch(setSortBy(obj));
   };
 
@@ -77,18 +84,14 @@ const Home = () => {
         <Categories activeCategory={activeCategory} setActiveCategory={onChangeCategory} />
         <Sort
           isSelected={sortBy}
-          setIsSelected={onChangeSorBy}
+          setIsSelected={onChangeSortBy}
           isAsc={isAsc}
           setIsAsc={onChangeSortOrder}
         />
       </div>
       <h2 className="content__title">All Pizzas</h2>
       <div className="content__items">{isLoading ? skeletonBlocks : pizzaBlocks}</div>
-      <Pagination
-        currentPage={currentPage}
-        onChangePage={(page) => onChangePage(page)}
-        pageCount={pageCount}
-      />
+      <Pagination currentPage={currentPage} onChangePage={onChangePage} pageCount={pageCount} />
     </div>
   );
 };
