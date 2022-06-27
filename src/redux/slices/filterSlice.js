@@ -6,9 +6,10 @@ const initialState = {
     name: "popularity",
     sortType: "rating",
   },
-  isAsc: true,
+  sortOrder: "asc",
   currentPage: 1,
   pageCount: 1,
+  searchValue: "",
 };
 
 export const filterSlice = createSlice({
@@ -17,12 +18,13 @@ export const filterSlice = createSlice({
   reducers: {
     setActiveCategory(state, { payload }) {
       state.activeCategory = payload;
+      state.currentPage = 1;
     },
     setSortBy(state, { payload }) {
       state.sortBy = payload;
     },
-    setIsAsc(state, { payload }) {
-      state.isAsc = payload;
+    setSortOrder(state, { payload }) {
+      state.sortOrder = payload;
     },
     setCurrentPage(state, { payload }) {
       state.currentPage = payload;
@@ -30,10 +32,29 @@ export const filterSlice = createSlice({
     setPageCount(state, { payload }) {
       state.pageCount = payload;
     },
+    setSearchValue(state, { payload }) {
+      state.searchValue = payload;
+      state.currentPage = 1;
+      state.activeCategory = 0;
+    },
+    setFilters(state, { payload }) {
+      state.sortOrder = payload.sortOrder;
+      state.sortBy = payload.sort;
+      state.activeCategory = Number(payload.activeCategory);
+      if (payload.currentPage > state.pageCount) state.currentPage = 1;
+      else state.currentPage = Number(payload.currentPage);
+    },
   },
 });
 
-export const { setActiveCategory, setSortBy, setIsAsc, setCurrentPage, setPageCount } =
-  filterSlice.actions;
+export const {
+  setActiveCategory,
+  setSortBy,
+  setSortOrder,
+  setCurrentPage,
+  setPageCount,
+  setSearchValue,
+  setFilters,
+} = filterSlice.actions;
 
 export default filterSlice.reducer;
