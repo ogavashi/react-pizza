@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 export const sortByList = [
   { name: "popularity", sortType: "rating" },
@@ -9,13 +9,29 @@ export const sortByList = [
 const Sort = ({ isSelected, setIsSelected, sortOrder, setSortOrder }) => {
   const [isVisible, setIsVisible] = useState(false);
 
+  const sortRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.composedPath().includes(sortRef.current)) {
+        setIsVisible(false);
+      }
+    };
+
+    document.body.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.body.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   const onClickSortCategory = (category) => {
     setIsSelected(category);
     setIsVisible(false);
   };
 
   return (
-    <div className="sort">
+    <div ref={sortRef} className="sort">
       <div className="sort__label">
         <svg
           onClick={setSortOrder}
