@@ -1,12 +1,22 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { CartEmpty } from "../components/CartEmpty";
 import CartItem from "../components/CartItem";
+import { eraseItems } from "../redux/slices/cartSlice";
 
 const Cart = () => {
   const { items, totalSum, totalCount } = useSelector((state) => state.cart);
 
+  const dispatch = useDispatch();
+
   const pizzas = items.map((cartItem) => <CartItem key={cartItem.id} {...cartItem} />);
+
+  const onClickErase = () => {
+    dispatch(eraseItems());
+  };
+
+  if (!totalCount) return <CartEmpty />;
 
   return (
     <div className="content">
@@ -45,7 +55,7 @@ const Cart = () => {
               </svg>
               Cart
             </h2>
-            <div className="cart__clear">
+            <div onClick={onClickErase} className="cart__clear">
               <svg
                 width="20"
                 height="20"
