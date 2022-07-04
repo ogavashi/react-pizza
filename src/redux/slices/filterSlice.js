@@ -8,7 +8,6 @@ const initialState = {
   },
   sortOrder: "asc",
   currentPage: 1,
-  pageCount: 1,
   searchValue: "",
 };
 
@@ -29,9 +28,6 @@ export const filterSlice = createSlice({
     setCurrentPage(state, { payload }) {
       state.currentPage = payload;
     },
-    setPageCount(state, { payload }) {
-      state.pageCount = payload;
-    },
     setSearchValue(state, { payload }) {
       state.searchValue = payload;
       state.currentPage = 1;
@@ -41,8 +37,7 @@ export const filterSlice = createSlice({
       state.sortOrder = payload.sortOrder;
       state.sortBy = payload.sort;
       state.activeCategory = Number(payload.activeCategory);
-      if (payload.currentPage > state.pageCount) state.currentPage = 1;
-      else state.currentPage = Number(payload.currentPage);
+      state.currentPage = Number(payload.currentPage);
     },
   },
 });
@@ -52,7 +47,6 @@ export const {
   setSortBy,
   setSortOrder,
   setCurrentPage,
-  setPageCount,
   setSearchValue,
   setFilters,
 } = filterSlice.actions;

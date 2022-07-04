@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Categories from "../components/Categories";
 import PizzaBlock from "../components/PizzaBlock";
 import { Skeleton } from "../components/PizzaBlock/Skeleton";
 import Sort, { sortByList } from "../components/Sort";
-import axios from "axios";
 import qs from "qs";
 import { Pagination } from "../components/Pagination";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,47 +11,41 @@ import {
   setSortBy,
   setActiveCategory,
   setCurrentPage,
-  setPageCount,
   setFilters,
 } from "../redux/slices/filterSlice";
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { fetchPizzas } from "../redux/slices/pizzasSlice";
 
 const Home = () => {
   const itemsPerPage = 8;
+  const categories = ["All", "Meat", "Veg", "Grill", "Spicy", "Stuffed"];
 
-  const { sortOrder, activeCategory, sortBy, currentPage, pageCount, searchValue } = useSelector(
+  const { sortOrder, activeCategory, sortBy, currentPage, searchValue } = useSelector(
     (state) => state.filter
   );
+  const { items, status, pageCount } = useSelector((state) => state.pizzas);
   const dispatch = useDispatch();
 
   const firstRender = useRef(true);
   const isSearch = useRef(false);
 
-  const [pizzas, setPizzas] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const [searchParams, setSearchParams] = useSearchParams({});
 
-  const pizzaBlocks = pizzas.map((pizza) => <PizzaBlock {...pizza} key={pizza.id} />);
+  const pizzaBlocks = items.map((pizza) => <PizzaBlock {...pizza} key={pizza.id} />);
   const skeletonBlocks = [...Array(8)].map((_, index) => <Skeleton key={index} />);
 
-  const fetchItems = useCallback(async () => {
+  const title = categories[activeCategory]
+    ? `${categories[activeCategory]} Pizzas`
+    : `Wow, undefined pizzas!`;
+
+  const getItems = useCallback(async () => {
     const sortType = `&sortBy=${sortBy.sortType}`;
     const category = activeCategory > 0 ? `category=${activeCategory}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
     const order = `&order=${sortOrder}`;
-    try {
-      setIsLoading(true);
-      const response = await axios.get(
-        `https://62b18186c7e53744afbaa222.mockapi.io/pizzas?page=${currentPage}&limit=${itemsPerPage}&${category}${sortType}${order}${search}`
-      );
-      setPizzas(response.data.items);
-      dispatch(setPageCount(Math.ceil(response.data.count / itemsPerPage)));
-      setIsLoading(false);
-    } catch (error) {
-      alert("Couldn't get pizzas :(");
-    }
+
+    dispatch(fetchPizzas({ currentPage, itemsPerPage, category, sortType, order, search }));
   }, [searchValue, sortOrder, sortBy, activeCategory, currentPage, dispatch]);
 
   useEffect(() => {
@@ -84,10 +77,10 @@ const Home = () => {
 
   useEffect(() => {
     if (!isSearch.current) {
-      fetchItems();
+      getItems();
     }
     isSearch.current = false;
-  }, [fetchItems]);
+  }, [getItems]);
 
   const onChangePage = (page) => {
     window.scrollTo(0, 0);
@@ -118,9 +111,20 @@ const Home = () => {
           setSortOrder={onChangeSortOrder}
         />
       </div>
-      <h2 className="content__title">All Pizzas</h2>
-      <div className="content__items">{isLoading ? skeletonBlocks : pizzaBlocks}</div>
-      {pageCount ? (
+      <h2 className="content__title">{searchValue ? `Results for: «${searchValue}»` : title}</h2>
+      {status === "error" || (status === "loaded" && pizzaBlocks.length === 0) ? (
+        <div className="content__error-info">
+          <h2>Ops, something went wrong😕</h2>
+          <p>
+            {searchValue
+              ? "No pizzas were found with such title."
+              : "Couldn't get any pizzas. Try again later."}
+          </p>
+        </div>
+      ) : (
+        <div className="content__items">{status === "loading" ? skeletonBlocks : pizzaBlocks}</div>
+      )}
+      {pageCount > 1 && pizzaBlocks.length !== 0 ? (
         <Pagination currentPage={currentPage} onChangePage={onChangePage} pageCount={pageCount} />
       ) : (
         ""
