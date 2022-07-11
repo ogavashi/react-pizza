@@ -18,6 +18,7 @@ export const filterSlice = createSlice({
     setActiveCategory(state, { payload }) {
       state.activeCategory = payload;
       state.currentPage = 1;
+      state.searchValue = "";
     },
     setSortBy(state, { payload }) {
       state.sortBy = payload;

@@ -72,6 +72,7 @@ const Home = () => {
       );
       isSearch.current = true;
     }
+    // eslint-disable-next-line
   }, [dispatch]);
 
   useEffect(() => {

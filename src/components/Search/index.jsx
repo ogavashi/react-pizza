@@ -1,12 +1,18 @@
 import debounce from "lodash.debounce";
 
 import styles from "./Search.module.scss";
-import { useCallback, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { setSearchValue } from "../../redux/slices/filterSlice";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectFilter, setSearchValue } from "../../redux/slices/filterSlice";
 
 const Search = () => {
-  const [localSearchValue, setLocalSearchValue] = useState("");
+  const { searchValue } = useSelector(selectFilter);
+
+  const [localSearchValue, setLocalSearchValue] = useState(searchValue);
+
+  useEffect(() => {
+    setLocalSearchValue(searchValue);
+  }, [searchValue]);
 
   const dispatch = useDispatch();
 
