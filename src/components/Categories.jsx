@@ -1,6 +1,4 @@
-const Categories = ({ activeCategory, setActiveCategory }) => {
-  const categories = ["All", "Meat", "Veg", "Grill", "Spicy", "Stuffed"];
-
+const Categories = ({ categories, activeCategory, setActiveCategory }) => {
   return (
     <div className="categories">
       <ul>

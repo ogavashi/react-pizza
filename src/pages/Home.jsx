@@ -12,19 +12,18 @@ import {
   setActiveCategory,
   setCurrentPage,
   setFilters,
+  selectFilter,
 } from "../redux/slices/filterSlice";
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { fetchPizzas } from "../redux/slices/pizzasSlice";
+import { fetchPizzas, selectPizzas } from "../redux/slices/pizzasSlice";
 
 const Home = () => {
   const itemsPerPage = 8;
   const categories = ["All", "Meat", "Veg", "Grill", "Spicy", "Stuffed"];
 
-  const { sortOrder, activeCategory, sortBy, currentPage, searchValue } = useSelector(
-    (state) => state.filter
-  );
-  const { items, status, pageCount } = useSelector((state) => state.pizzas);
+  const { sortOrder, activeCategory, sortBy, currentPage, searchValue } = useSelector(selectFilter);
+  const { items, status, pageCount } = useSelector(selectPizzas);
   const dispatch = useDispatch();
 
   const firstRender = useRef(true);
@@ -103,7 +102,11 @@ const Home = () => {
   return (
     <div className="container">
       <div className="content__top">
-        <Categories activeCategory={activeCategory} setActiveCategory={onChangeCategory} />
+        <Categories
+          categories={categories}
+          activeCategory={activeCategory}
+          setActiveCategory={onChangeCategory}
+        />
         <Sort
           isSelected={sortBy}
           setIsSelected={onChangeSortBy}

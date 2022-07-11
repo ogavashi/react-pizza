@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addItem } from "../../redux/slices/cartSlice";
+import { addItem, selectCartByID } from "../../redux/slices/cartSlice";
 
 const PizzaBlock = ({ id, title, prices, imageUrl, sizes, types }) => {
   const [activeSize, setActiveSize] = useState(0);
@@ -8,12 +8,9 @@ const PizzaBlock = ({ id, title, prices, imageUrl, sizes, types }) => {
 
   const dispatch = useDispatch();
 
-  const { items } = useSelector((state) => state.cart);
-
+  const items = useSelector(selectCartByID(id));
   const price = activeType === 0 ? prices[activeSize] : Math.floor(prices[activeSize]) * 1.2;
-  const quantity = items
-    .filter((item) => item.id.slice(0, -2) === id)
-    .reduce((sum, item) => sum + item.count, 0);
+  const quantity = items.reduce((sum, item) => sum + item.count, 0);
 
   const onClickAddButton = () => {
     const item = {
