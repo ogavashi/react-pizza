@@ -18,7 +18,7 @@ React Pizza was built using the following technologies:
 
 ## Installation
 To install React Pizza, follow these steps:
-1. Clone the repository: git clone https://github.com/<username>/react-pizza.git
+1. Clone the repository: git clone https://github.com/ogavashi/react-pizza.git
 2. Install dependencies: npm install
 ## Usage
 To run React Pizza, follow these steps:
